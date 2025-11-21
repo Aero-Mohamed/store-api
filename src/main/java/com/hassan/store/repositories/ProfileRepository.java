@@ -1,6 +1,6 @@
-package com.codewithmosh.store.repositories;
+package com.hassan.store.repositories;
 
-import com.codewithmosh.store.entities.Profile;
+import com.hassan.store.entities.Profile;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ProfileRepository extends CrudRepository<Profile, Long> {
