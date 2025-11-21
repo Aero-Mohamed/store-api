@@ -4,6 +4,7 @@ import com.hassan.store.dtos.CreateProductRequest;
 import com.hassan.store.dtos.ProductDto;
 import com.hassan.store.entities.Product;
 import com.hassan.store.mappers.ProductMapper;
+import com.hassan.store.repositories.CategoryRepository;
 import com.hassan.store.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class ProductController {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final CategoryRepository categoryRepository;
 
     @GetMapping
     public ResponseEntity<List<ProductDto>> getAllProducts(
@@ -53,7 +55,12 @@ public class ProductController {
             UriComponentsBuilder uriBuilder
     ){
         var product = productMapper.toEntity(request);
+        var category = categoryRepository.findById(request.getCategoryId()).orElse(null);
+        if(category == null){
+            return ResponseEntity.badRequest().build();
+        }
 
+        product.setCategory(category);
         productRepository.save(product);
 
         var productDto = productMapper.toDto(product);
@@ -72,7 +79,14 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
 
+        var category = categoryRepository.findById(request.getCategoryId()).orElse(null);
+        if(category == null){
+            return ResponseEntity.badRequest().build();
+        }
+
         productMapper.update(request, product);
+        product.setCategory(category);
+
         productRepository.save(product);
 
         return ResponseEntity.ok(productMapper.toDto(product));

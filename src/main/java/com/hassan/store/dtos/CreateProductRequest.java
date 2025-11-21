@@ -9,5 +9,5 @@ public class CreateProductRequest {
     private String name;
     private String description;
     private BigDecimal price;
-    private Long categoryId;
+    private Byte categoryId;
 }
