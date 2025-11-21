@@ -1,6 +1,7 @@
 package com.hassan.store.controllers;
 
 import com.hassan.store.dtos.CreateUserRequest;
+import com.hassan.store.dtos.UpdateUserRequest;
 import com.hassan.store.dtos.UserDto;
 import com.hassan.store.entities.User;
 import com.hassan.store.mappers.UserMapper;
@@ -58,5 +59,21 @@ public class UserController {
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
 
         return ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable(name="id") Long id,
+            @RequestBody UpdateUserRequest request
+    ){
+        var user = userRepository.findById(id).orElse(null);
+        if(user == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        userMapper.update(request, user);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }
