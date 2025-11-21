@@ -28,7 +28,7 @@ public class ProductController {
         if(categoryId != null){
             products = productRepository.findByCategoryId(categoryId);
         }else{
-            products = productRepository.findAll();
+            products = productRepository.findAllWithCategory();
         }
 
         return ResponseEntity.ok(
