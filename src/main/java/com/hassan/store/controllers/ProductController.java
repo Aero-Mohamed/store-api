@@ -7,10 +7,12 @@ import com.hassan.store.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -26,5 +28,14 @@ public class ProductController {
                 .map(productMapper::toDto).toList();
 
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
+        Optional<Product> product = productRepository.findById(id);
+
+        return product.map(productMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
