@@ -37,17 +37,20 @@ public class AuthController {
                         request.getPassword()
                 )
         );
-        var token = jwtResponse.generateToken(request.getEmail());
+
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        var token = jwtResponse.generateToken(user);
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
     @GetMapping("me")
     public ResponseEntity<UserDto> me(){
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var email = (String)authentication.getPrincipal();
 
-        var user = userRepository.findByEmail(email).orElse(null);
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userId = (Long) authentication.getPrincipal();
+
+        var user = userRepository.findById(userId).orElse(null);
         if(user == null){
             return ResponseEntity.notFound().build();
         }

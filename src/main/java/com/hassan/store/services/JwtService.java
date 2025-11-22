@@ -1,5 +1,6 @@
 package com.hassan.store.services;
 
+import com.hassan.store.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,9 +19,11 @@ public class JwtService {
     @Value("${spring.jwt.secret}")
     private String secretKey;
 
-    public String generateToken(String email){
+    public String generateToken(User user){
         return Jwts.builder()
-                .subject(email)
+                .subject(user.getId().toString())
+                .claim("name", user.getName())
+                .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
@@ -37,9 +40,9 @@ public class JwtService {
         }
     }
 
-    public String getEmail(String token){
+    public Long getUserId(String token){
         var claims = getClaims(token);
-        return claims.getSubject();
+        return Long.valueOf(claims.getSubject());
     }
 
     private Claims getClaims(String token) {
