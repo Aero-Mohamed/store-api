@@ -1,6 +1,7 @@
 package com.hassan.store.controllers;
 
 import com.hassan.store.dtos.*;
+import com.hassan.store.entities.Role;
 import com.hassan.store.entities.User;
 import com.hassan.store.mappers.UserMapper;
 import com.hassan.store.repositories.UserRepository;
@@ -62,6 +63,7 @@ public class UserController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);
