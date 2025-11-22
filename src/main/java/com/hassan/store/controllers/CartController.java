@@ -5,7 +5,6 @@ import com.hassan.store.dtos.CartDto;
 import com.hassan.store.dtos.CartItemDto;
 import com.hassan.store.dtos.UpdateCartItemRequest;
 import com.hassan.store.entities.Cart;
-import com.hassan.store.entities.CartItem;
 import com.hassan.store.mappers.CartMapper;
 import com.hassan.store.repositories.CartRepository;
 import com.hassan.store.repositories.ProductRepository;
@@ -103,6 +102,21 @@ public class CartController {
         }
 
         cart.removeItem(productId);
+        cartRepository.save(cart);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/items")
+    public ResponseEntity<Void> deleteAllItems(
+            @PathVariable(name="id") UUID cartId
+    ){
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if(cart == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        cart.clearItems();
         cartRepository.save(cart);
 
         return ResponseEntity.noContent().build();
