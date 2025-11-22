@@ -1,6 +1,8 @@
 package com.hassan.store.controllers;
 
+import com.hassan.store.dtos.JwtResponse;
 import com.hassan.store.dtos.UserLoginRequest;
+import com.hassan.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,10 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtResponse;
 
     @PostMapping("login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody UserLoginRequest request
     ){
 
@@ -28,8 +31,9 @@ public class AuthController {
                         request.getPassword()
                 )
         );
+        var token = jwtResponse.generateToken(request.getEmail());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
     @ExceptionHandler(value={BadCredentialsException.class})
