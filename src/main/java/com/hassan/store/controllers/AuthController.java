@@ -29,6 +29,7 @@ public class AuthController {
     private final JwtService jwtResponse;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     @PostMapping("login")
     public ResponseEntity<JwtResponse> login(
@@ -72,6 +73,22 @@ public class AuthController {
 
         return ResponseEntity.ok(userDto);
     }
+
+    @PostMapping("refresh")
+    public ResponseEntity<JwtResponse> refresh(
+            @CookieValue("refreshToken") String refreshToken
+    ){
+        if(!jwtService.validateToken(refreshToken)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var userId = jwtService.getUserId(refreshToken);
+        var user = userRepository.findById(userId).orElseThrow();
+        var token = jwtService.generateAccessToken(user);
+
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
+
 
     @ExceptionHandler(value={BadCredentialsException.class})
     public ResponseEntity<Void> handleBadCredentialsException(){
