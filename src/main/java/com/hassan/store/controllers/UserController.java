@@ -1,9 +1,6 @@
 package com.hassan.store.controllers;
 
-import com.hassan.store.dtos.ChangePasswordRequest;
-import com.hassan.store.dtos.CreateUserRequest;
-import com.hassan.store.dtos.UpdateUserRequest;
-import com.hassan.store.dtos.UserDto;
+import com.hassan.store.dtos.*;
 import com.hassan.store.entities.User;
 import com.hassan.store.mappers.UserMapper;
 import com.hassan.store.repositories.UserRepository;
