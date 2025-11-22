@@ -7,17 +7,18 @@ import com.hassan.store.dtos.UserDto;
 import com.hassan.store.entities.User;
 import com.hassan.store.mappers.UserMapper;
 import com.hassan.store.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
+@Tag(name="Users")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/users")

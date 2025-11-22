@@ -6,6 +6,7 @@ import com.hassan.store.entities.Product;
 import com.hassan.store.mappers.ProductMapper;
 import com.hassan.store.repositories.CategoryRepository;
 import com.hassan.store.repositories.ProductRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name="Products")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/products")
