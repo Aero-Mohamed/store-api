@@ -1,11 +1,14 @@
 package com.hassan.store.controllers;
 
+import com.hassan.store.config.JwtConfig;
 import com.hassan.store.dtos.JwtResponse;
 import com.hassan.store.dtos.UserDto;
 import com.hassan.store.dtos.UserLoginRequest;
 import com.hassan.store.mappers.UserMapper;
 import com.hassan.store.repositories.UserRepository;
 import com.hassan.store.services.JwtService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private final JwtConfig jwtConfig;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtResponse;
     private final UserRepository userRepository;
@@ -28,7 +32,8 @@ public class AuthController {
 
     @PostMapping("login")
     public ResponseEntity<JwtResponse> login(
-            @Valid @RequestBody UserLoginRequest request
+            @Valid @RequestBody UserLoginRequest request,
+            HttpServletResponse response
     ){
 
         authenticationManager.authenticate(
@@ -39,7 +44,15 @@ public class AuthController {
         );
 
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var token = jwtResponse.generateToken(user);
+        var token = jwtResponse.generateAccessToken(user);
+        var refreshToken = jwtResponse.generateRefreshToken(user);
+
+        var cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/auth/refresh");
+        cookie.setMaxAge(jwtConfig.getRefreshExpiration());
+        cookie.setSecure(true);
+        response.addCookie(cookie);
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
