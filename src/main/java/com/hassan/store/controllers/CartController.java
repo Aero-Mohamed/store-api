@@ -3,6 +3,7 @@ package com.hassan.store.controllers;
 import com.hassan.store.dtos.AddItemToCartRequest;
 import com.hassan.store.dtos.CartDto;
 import com.hassan.store.dtos.CartItemDto;
+import com.hassan.store.dtos.UpdateCartItemRequest;
 import com.hassan.store.entities.Cart;
 import com.hassan.store.entities.CartItem;
 import com.hassan.store.mappers.CartMapper;
@@ -49,21 +50,7 @@ public class CartController {
             return ResponseEntity.badRequest().build();
         }
 
-        var cartItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(product.getId()))
-                .findFirst().orElse(null);
-
-        if(cartItem != null){
-            cartItem.setQuantity(request.getQuantity());
-        }else{
-            cartItem = CartItem.builder()
-                    .cart(cart)
-                    .product(product)
-                    .quantity(request.getQuantity())
-                    .build();
-            cart.getItems().add(cartItem);
-        }
-
+        var cartItem = cart.addItem(product);
         cartRepository.save(cart);
 
         var cartItemDto = cartMapper.toDto(cartItem);
@@ -80,5 +67,28 @@ public class CartController {
         }
 
         return ResponseEntity.ok(cartMapper.toDto(cart));
+    }
+
+
+    @PutMapping("/{id}/items/{productId}")
+    public ResponseEntity<CartItemDto> updateItem(
+            @PathVariable(name="id") UUID cartId,
+            @PathVariable(name="productId") Long productId,
+            @Valid @RequestBody UpdateCartItemRequest request
+    ){
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if(cart == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        var cartItem = cart.getItem(productId);
+        if(cartItem == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        cartItem.setQuantity(request.getQuantity());
+        cartRepository.save(cart);
+
+        return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
 }
