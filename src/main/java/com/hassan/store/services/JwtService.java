@@ -1,5 +1,6 @@
 package com.hassan.store.services;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -28,17 +29,25 @@ public class JwtService {
 
     public Boolean validateToken(String token){
         try{
-
-            var claims = Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
+            var claims = getClaims(token);
             return claims.getExpiration().after(new Date());
 
         }catch(JwtException ex){
             return false;
         }
     }
+
+    public String getEmail(String token){
+        var claims = getClaims(token);
+        return claims.getSubject();
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
 }
