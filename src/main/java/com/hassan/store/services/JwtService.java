@@ -1,6 +1,7 @@
 package com.hassan.store.services;
 
 import com.hassan.store.config.JwtConfig;
+import com.hassan.store.entities.Role;
 import com.hassan.store.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -50,6 +51,11 @@ public class JwtService {
     public Long getUserId(String token){
         var claims = getClaims(token);
         return Long.valueOf(claims.getSubject());
+    }
+
+    public Role getUserRole(String token){
+        var claims = getClaims(token);
+        return Role.valueOf(claims.get("role", String.class));
     }
 
     private Claims getClaims(String token) {

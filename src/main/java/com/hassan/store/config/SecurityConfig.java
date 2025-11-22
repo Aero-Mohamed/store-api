@@ -1,5 +1,6 @@
 package com.hassan.store.config;
 
+import com.hassan.store.entities.Role;
 import com.hassan.store.filters.JwtAuthenticationFilter;
 import com.hassan.store.services.UserService;
 import lombok.AllArgsConstructor;
@@ -57,13 +58,18 @@ public class SecurityConfig {
                         .requestMatchers("/carts/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/refresh").permitAll()
+                        .requestMatchers("/admins/**").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c -> c
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                );
+                .exceptionHandling(c -> {
+                    c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                    c.accessDeniedHandler((req, res, ex) -> {
+                        res.setStatus(HttpStatus.FORBIDDEN.value());
+                    });
+
+                });
 
         return http.build();
     }
