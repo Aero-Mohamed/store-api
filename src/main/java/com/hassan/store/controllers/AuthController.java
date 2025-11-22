@@ -1,7 +1,10 @@
 package com.hassan.store.controllers;
 
 import com.hassan.store.dtos.JwtResponse;
+import com.hassan.store.dtos.UserDto;
 import com.hassan.store.dtos.UserLoginRequest;
+import com.hassan.store.mappers.UserMapper;
+import com.hassan.store.repositories.UserRepository;
 import com.hassan.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -19,6 +23,8 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtResponse;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @PostMapping("login")
     public ResponseEntity<JwtResponse> login(
@@ -36,11 +42,19 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @PostMapping("validate")
-    public Boolean validate(@RequestHeader("Authorization") String authHeader){
+    @GetMapping("me")
+    public ResponseEntity<UserDto> me(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var email = (String)authentication.getPrincipal();
 
-        var token = authHeader.replace("Bearer ", "");
-        return jwtResponse.validateToken(token);
+        var user = userRepository.findByEmail(email).orElse(null);
+        if(user == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        var userDto = userMapper.toDto(user);
+
+        return ResponseEntity.ok(userDto);
     }
 
     @ExceptionHandler(value={BadCredentialsException.class})
