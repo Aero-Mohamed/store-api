@@ -18,44 +18,35 @@ public class JwtService {
 
     private final JwtConfig jwtConfig;
 
-    public String generateRefreshToken(User user){
+    public Jwt generateRefreshToken(User user){
         return generateToken(user, jwtConfig.getRefreshExpiration());
     }
 
-    public String generateAccessToken(User user){
+    public Jwt generateAccessToken(User user){
         return generateToken(user, jwtConfig.getExpiration());
     }
 
-    private String generateToken(User user, Integer tokenExpiration) {
-        return Jwts.builder()
+    private Jwt generateToken(User user, Integer tokenExpiration) {
+
+        var claims = Jwts.claims()
                 .subject(user.getId().toString())
-                .claim("name", user.getName())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
+                .add("name", user.getName())
+                .add("email", user.getEmail())
+                .add("role", user.getRole())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000L * tokenExpiration))
-                .signWith(Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes()))
-                .compact();
+                .build();
+
+        return new Jwt(claims, jwtConfig.getSecretKey());
     }
 
-    public Boolean validateToken(String token){
-        try{
+    public Jwt parseToken(String token){
+        try {
             var claims = getClaims(token);
-            return claims.getExpiration().after(new Date());
-
-        }catch(JwtException ex){
-            return false;
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch (JwtException ex) {
+            return null;
         }
-    }
-
-    public Long getUserId(String token){
-        var claims = getClaims(token);
-        return Long.valueOf(claims.getSubject());
-    }
-
-    public Role getUserRole(String token){
-        var claims = getClaims(token);
-        return Role.valueOf(claims.get("role", String.class));
     }
 
     private Claims getClaims(String token) {
