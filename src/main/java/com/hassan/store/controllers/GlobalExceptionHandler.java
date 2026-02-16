@@ -1,6 +1,7 @@
 package com.hassan.store.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +11,14 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    // e.g., when fail to parse "123" as UUID
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleUnreadableMessage(Exception exception){
+        return ResponseEntity.badRequest().body(
+                Map.of("error", "Invalid Request body")
+        );
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(
