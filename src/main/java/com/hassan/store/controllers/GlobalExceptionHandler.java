@@ -1,5 +1,6 @@
 package com.hassan.store.controllers;
 
+import com.hassan.store.dtos.ErrorDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,9 +15,9 @@ public class GlobalExceptionHandler {
 
     // e.g., when fail to parse "123" as UUID
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleUnreadableMessage(Exception exception){
+    public ResponseEntity<ErrorDto> handleUnreadableMessage(Exception exception){
         return ResponseEntity.badRequest().body(
-                Map.of("error", "Invalid Request body")
+                new ErrorDto("Invalid Request body")
         );
     }
 
