@@ -14,3 +14,9 @@ spring:
     expiration: ${JWT_EXPIRATION}
     refreshExpiration: ${JWT_REFRESH_EXPIRATION}
 
+  stripe:
+    secretKey: ${STRIPE_SECRET_KEY}
+
+
+websiteUrl: "https://localhost:4242"
+
