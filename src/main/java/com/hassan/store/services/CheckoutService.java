@@ -3,21 +3,15 @@ package com.hassan.store.services;
 import com.hassan.store.dtos.CheckoutRequest;
 import com.hassan.store.dtos.CheckoutResponse;
 import com.hassan.store.entities.Order;
+import com.hassan.store.entities.PaymentStatus;
 import com.hassan.store.exceptions.CartEmptyException;
 import com.hassan.store.exceptions.CartNotFoundException;
 import com.hassan.store.exceptions.PaymentException;
 import com.hassan.store.repositories.CartRepository;
 import com.hassan.store.repositories.OrderRepository;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Service
@@ -54,5 +48,15 @@ public class CheckoutService {
             throw ex;
         }
 
+    }
+
+    public void handleWebhookEvent(WebhookRequest request) {
+        paymentGateway
+            .parseWebhookRequest(request)
+            .ifPresent(paymentResult -> {
+                var order = orderRepository.findById(paymentResult.getOrderId()).orElseThrow();
+                order.setStatus(paymentResult.getPaymentstatus());
+                orderRepository.save(order);
+        });
     }
 }
